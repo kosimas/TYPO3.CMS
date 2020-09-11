@@ -449,6 +449,7 @@ class RteHtmlParser extends HtmlParser implements LoggerAwareInterface
                 }
                 $blockSplit[$k + 1] = preg_replace('/^[ ]*' . LF . '/', '', $blockSplit[$k + 1]);
             } else {
+                $firstFTN = $this->getFirstTagName($blockSplit[0] ?? '');
                 // NON-block:
                 $nextFTN = $this->getFirstTagName($blockSplit[$k + 1] ?? '');
                 $onlyLineBreaks = (preg_match('/^[ ]*' . LF . '+[ ]*$/', $blockSplit[$k]) == 1);
@@ -466,6 +467,8 @@ class RteHtmlParser extends HtmlParser implements LoggerAwareInterface
                 if ((string)$blockSplit[$k] === '' && !$onlyLineBreaks) {
                     unset($blockSplit[$k]);
                 } else {
+                    // Continue if element is allowed outside of paragraph
+                    if ($firstFTN && in_array(strtolower($firstFTN), $this->allowedTagsOutsideOfParagraphs)) continue;
                     $blockSplit[$k] = $this->setDivTags($blockSplit[$k]);
                 }
             }
